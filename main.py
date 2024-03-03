@@ -69,8 +69,8 @@ def select_value(csp, var, solution):
                 for av in adj_values:
                     csp["constraints"] = [constraint]
                     if constraint_satisfied({adj: av},
-                                               csp, var, v, solution_str=[],
-                                               stdout=False):
+                                            csp, var, v, solution_str=[],
+                                            stdout=False):
                         values[v] += 1
                     csp["constraints"] = csp["constraints_org"]
     sorted_keys = sorted(values.keys(), key=lambda x: (-values[x], x))
@@ -90,7 +90,7 @@ def forward_check(csp, solution):
             csp["constraints"] = [constraint]
             for v in csp["variables"][var]:
                 if not constraint_satisfied(solution, csp, var, v, solution_str=[],
-                                       stdout=False):
+                                            stdout=False):
                     if v in csp["variables"][var]:
                         csp1["variables"][var].remove(v)
                     if len(csp1["variables"][var]) == 0:
@@ -167,6 +167,10 @@ def test(file):
         lines = [x.replace("\n", "") for x in f.readlines()]
     if len(lines) != len(OUTPUT):
         print("Lists are not equal in length.")
+        l_str = '\n'.join(lines)
+        print(f"Expected:\n{l_str}\n")
+        l_str = '\n'.join(OUTPUT)
+        print(f"Actual:\n{l_str}\n")
     else:
         unequal_elements = [(elem1, elem2) for elem1, elem2 in zip(lines, OUTPUT) if elem1 != elem2]
         if not unequal_elements:
@@ -175,7 +179,7 @@ def test(file):
             print("Lists are not equal.")
             print("Elements that are not equal:")
             for elem1, elem2 in unequal_elements:
-                print(f"{elem1} (List 1) != {elem2} (List 2)")
+                print(f"{elem1} (Expected) != {elem2} (Actual)")
 
 
 if __name__ == "__main__":

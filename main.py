@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+import copy
 
 STEP_CNT = 0
 OUTPUT = []
@@ -34,7 +35,7 @@ def select_variable(csp, solution):
     if len(min_keys) == 1:
         return min_keys[0]
 
-    constraint_count = {}
+    constraint_count = {k: 0 for k in min_keys}
     for constraint in csp["constraints"]:
         literals = constraint.split()
         if literals[0] in solution or literals[-1] in solution:
@@ -43,8 +44,6 @@ def select_variable(csp, solution):
             if lit.isalpha() and lit in min_keys:
                 if lit in constraint_count:
                     constraint_count[lit] += 1
-                else:
-                    constraint_count[lit] = 1
     if len(constraint_count):
         return max(constraint_count.keys(), key=lambda k: constraint_count[k])[0]
     return min_keys[0]
@@ -58,7 +57,6 @@ def select_value(csp, var, solution):
     for constraint in constraints:
         var1, op, var2 = constraint.split(" ")
         if var1 in solution or var2 in solution:
-            # constraints.remove(constraint)
             continue
         if var1 == var:
             adj = var2
@@ -83,10 +81,6 @@ def select_value(csp, var, solution):
 
 def forward_check(csp, solution):
     variables = [v for v in csp["variables"] if v not in list(solution.keys())]
-    # for v in solution.keys():
-        # if v in csp["variables"]:
-           # csp["variables"].pop(v)
-    import copy
     csp1 = copy.deepcopy(csp)
     for var in variables:
         constraints = list(set([c for c in csp["constraints"]
@@ -101,7 +95,6 @@ def forward_check(csp, solution):
                         csp1["variables"][var].remove(v)
                     if len(csp1["variables"][var]) == 0:
                         csp1["variables"] = csp1["variables_org"]
-                        # csp["constraints"] = csp["constraints_org"]
                         return csp1, -1
             csp["constraints"] = csp["constraints_org"]
     return csp1, 1
@@ -126,24 +119,6 @@ def constraint_satisfied(solution, csp, var, val, solution_str, stdout=True):
             var1 = val
         elif var2 == var:
             var2 = val
-        """
-        var1 = solution.get(var1, var2)
-        if var1 == var:
-            var1 = val
-        elif var2 == var:
-            var2 = val
-        if op == "=":
-            if var1 != var2:
-                print_(solution_str+[f"{var}={val}"], "failure")
-                return True
-        elif op == ">":
-            if var1 <= var2:
-                print_(solution_str+[f"{var}={val}"], "failure")
-                return True
-        elif op == "<":
-            if var1 >= var2:
-                print_(solution_str+[f"{var}={val}"], "failure")
-                return True"""
         if ((op == "=" and var1 != var2)
                 or (op == ">" and var1 <= var2)
                 or (op == "<" and var1 >= var2)
@@ -184,7 +159,6 @@ def csp_solver(var_file, constraint_file, consistency):
            "constraints": parse_con(constraint_file),
            "constraints_org": parse_con(constraint_file),
            "consistency": consistency}
-    # print(csp)
     backtrack([], csp)
 
 
